@@ -52,7 +52,7 @@ async def collect_date(message: types.Message, state: FSMContext):
     try:
         parsed = dt.datetime.strptime(raw, DATE_FMT)
     except ValueError:
-        await message.reply(f"Неверно. Формат: dd.mm.yyyy HH:MM")
+        await message.reply("Неверно. Формат: dd.mm.yyyy HH:MM")
         return
     await state.update_data(date_time=parsed.strftime(DATE_FMT))
     await state.set_state(NewEventState.waiting_for_location)

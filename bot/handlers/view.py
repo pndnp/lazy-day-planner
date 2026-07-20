@@ -41,12 +41,14 @@ async def cmd_help(message: types.Message):
     """Show help message with all available commands."""
     text = (
         "Список доступных команд:\n\n"
-        "/start — Приветствие и регистрация.\n"
-        "/add — Добавить новое событие.\n"
-        "/today — Просмотр событий на сегодня.\n"
-        "/tomorrow — Просмотр событий на завтра.\n"
-        "/week — Просмотр событий на текущую неделю.\n"
-        "/del <id> — Удалить событие по его ID."
+        "/start — Приветствие и регистрация\n"
+        "/add — Добавить новое событие\n"
+        "/today — Просмотр событий на сегодня\n"
+        "/tomorrow — Просмотр событий на завтра\n"
+        "/week — Просмотр событий на текущую неделю\n"
+        "/next_week — Просмотр событий на следующую неделю\n"
+        "/all — Список всех событий\n"
+        "/del <id> — Удалить событие по его ID"
     )
     await message.answer(text)
 
@@ -89,6 +91,36 @@ async def cmd_del(message: types.Message):
     await message.reply(f"Событие '{event.title}' удалено.")
 
 
+@view_router.message(Command("all"))
+async def cmd_all(message: types.Message):
+    """Show all events."""
+    telegram_id = message.from_user.id
+
+    async with async_session_factory() as session:
+        result = await session.execute(select(User).where(User.telegram_id == telegram_id))
+        user = result.scalar_one_or_none()
+
+    if user is None:
+        return
+
+    async with async_session_factory() as session:
+        result = await session.execute(select(Event).where(Event.user_id == user.id))
+        events = result.scalars().all()
+
+    if not events:
+        await message.answer("Нет планов")
+        return
+
+    events.sort(key=lambda e: e.date_time)
+    lines = ["Все события:"]
+    for ev in events:
+        day_short = WEEKDAY_SHORT[ev.date_time.weekday()]
+        text = f"{day_short} {ev.date_time.strftime(DATE_FMT)} {ev.title} ({ev.id})"
+        lines.append(text)
+
+    await message.answer("\n".join(lines))
+
+
 async def _show_events(
     message: types.Message, day: str = "today", period: str = ""
 ) -> None:
@@ -110,9 +142,9 @@ async def _show_events(
     if not events:
         labels = {"today": "сегодня", "tomorrow": "завтра"}
         if period == "next_week":
-            label = "на следующей неделе"
+            label = "на следующую неделю"
         elif period == "week":
-            label = "на этой неделе"
+            label = "на эту неделю"
         else:
             label = labels.get(day, "")
         await message.answer(f"Нет планов на {label}")
@@ -151,20 +183,20 @@ async def _show_events(
             return
         labels = {"today": "сегодня", "tomorrow": "завтра"}
         if period == "next_week":
-            label = "на следующей неделе"
+            label = "на следующую неделю"
         elif period == "week":
-            label = "на этой неделе"
+            label = "на эту неделю"
         else:
             label = labels.get(day, "")
         await message.answer(f"Нет планов на {label}")
         return
 
     if period == "next_week":
-        header = "Планы на следующей неделе:"
+        header = "План на следующую неделю:"
     elif period == "week":
-        header = "Планы на этой неделе:"
+        header = "План на эту неделю:"
     else:
-        header = f"Планы на {'сегодня' if day == 'today' else 'завтра'}:"
+        header = f"План на {'сегодня' if day == 'today' else 'завтра'}:"
     lines = [header, "", ]
     for ev in filtered:
         day_short = WEEKDAY_SHORT[ev.date_time.weekday()]

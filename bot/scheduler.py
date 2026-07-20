@@ -64,7 +64,7 @@ async def daily_summary(bot: Bot) -> None:
             lines.append("🎉 Сегодня ничего нет. Какой прекрасный день!")
 
         if today_events:
-            lines.append("Планы на сегодня:")
+            lines.append("План на сегодня:")
             for ev in today_events:
                 day_short = WEEKDAY_SHORT[ev.date_time.weekday()]
                 text = f"{day_short} {ev.date_time.strftime(DATE_FMT)} — {ev.title}"
@@ -73,7 +73,7 @@ async def daily_summary(bot: Bot) -> None:
                 lines.append(text)
 
         if tomorrow_events:
-            lines.append("Планы на завтра:")
+            lines.append("План на завтра:")
             for ev in tomorrow_events:
                 day_short = WEEKDAY_SHORT[ev.date_time.weekday()]
                 text = f"{day_short} {ev.date_time.strftime(DATE_FMT)} — {ev.title}"
