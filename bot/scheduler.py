@@ -60,6 +60,9 @@ async def daily_summary(bot: Bot) -> None:
             key=lambda e: e.date_time,
         )
 
+        if not today_events and not tomorrow_events:
+            lines.append("🎉 Сегодня ничего нет. Какой прекрасный день!")
+
         if today_events:
             lines.append("События на сегодня:")
             for ev in today_events:

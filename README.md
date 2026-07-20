@@ -47,10 +47,6 @@ source venv/bin/activate
 # установить зависимости (если ещё не установлены)
 pip install -r requirements.txt
 
-# задать переменные окружения (можно в .env)
-export BOT_TOKEN="<токен_бота>"
-export DB_URL="sqlite+aiosqlite:///events.db"
-export TZ="Europe/Moscow"
 
 # запустить бота
 python -m bot.main

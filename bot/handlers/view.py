@@ -155,6 +155,12 @@ async def _show_events(
     logger.info(f"_show_events: filtered {len(filtered)} events for period='{period}'")
 
     if not filtered:
+        if day == "tomorrow":
+            await message.answer("🎉 Завтра ничего нет. Какой прекрасный день!")
+            return
+        if day == "today":
+            await message.answer("🎉 Сегодня ничего нет. Какой прекрасный день!")
+            return
         labels = {"today": "сегодня", "tomorrow": "завтра"}
         if period == "next_week":
             label = "на следующей неделе"
