@@ -54,7 +54,7 @@ async def collect_title(message: types.Message, state: FSMContext):
     kb = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Отменить", callback_data="cancel_new_event")]
     ])
-    await message.answer("Формат даты и времени: dd.mm.yyyy HH:MM", reply_markup=kb)
+    await message.answer("Введите дату и время: dd.mm.yyyy hh:mm", reply_markup=kb)
 
 
 @add_router.message(NewEventState.waiting_for_date)
@@ -64,7 +64,7 @@ async def collect_date(message: types.Message, state: FSMContext):
     try:
         parsed = dt.datetime.strptime(raw, DATE_FMT)
     except ValueError:
-        await message.reply("Неверный формат. Формат: dd.mm.yyyy HH:MM")
+        await message.reply("Неверный формат. Формат: dd.mm.yyyy hh:mm")
         return
     await state.update_data(date_time=parsed.strftime(DATE_FMT))
     await state.set_state(NewEventState.waiting_for_location)
