@@ -117,9 +117,8 @@ async def _save_event(message: types.Message, state: FSMContext, user_id: int):
         await session.commit()
 
     day_short = WEEKDAY_SHORT[date_time.weekday()]
-    reply = f"Событие '{title}' добавлено на {date_time_str} ({day_short})"
-    if location:
-        reply += f" • {location}"
+    reply = f"Событие '{title}' добавлено на {day_short} {date_time_str}"
+
     await message.answer(reply)
 
     await state.clear()

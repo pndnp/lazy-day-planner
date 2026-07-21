@@ -2,6 +2,7 @@ from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
 
+from bot.config import SUMMARY_HOUR, SUMMARY_MINUTE
 
 start_router = Router()
 
@@ -10,9 +11,11 @@ start_router = Router()
 async def cmd_start(message: Message):
     """Handle /start command - register user and show welcome message."""
     text = (
-        "Привет! \n"
-        "Чтобы твой день был максимально ленивым, спланируй предстоящие события и расслабься, а я буду напоминать тебе о них утром каждого дня.\n\n"
-        "Используй /add чтобы добавить событие,\n"
+        "Привет! Я бот-напоминалка.\n\n"
+        f"Я помогу тебе планировать события на день и неделю вперед.\n\n"
+        f"Я буду напоминать тебе о них утром в {SUMMARY_HOUR:02}:"
+        f"{SUMMARY_MINUTE:02} каждого дня.\n\n"
+        "Используйте /add чтобы добавить событие,\n"
         "/today для просмотра планов на сегодня,\n"
         "/tomorrow — на завтра,\n"
         "/week — на текущую неделю,\n"

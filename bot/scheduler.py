@@ -50,18 +50,18 @@ async def daily_summary(bot: Bot) -> None:
             [e for e in events if e.date_time.date() == now.date()],
             key=lambda e: e.date_time,
         )
-        tomorrow_events = sorted(
-            [
-                e
-                for e in events
-                if e.date_time.date()
-                == now.date() + dt.timedelta(days=1)
-            ],
-            key=lambda e: e.date_time,
-        )
+        #tomorrow_events = sorted(
+        #    [
+        #        e
+        #        for e in events
+        #        if e.date_time.date()
+        #        == now.date() + dt.timedelta(days=1)
+        #    ],
+        #    key=lambda e: e.date_time,
+        #)
 
-        if not today_events and not tomorrow_events:
-            lines.append("🎉 Сегодня ничего нет. Какой прекрасный день!")
+        if not today_events:
+            lines.append("🎉 На сегодня планов нет. Какой прекрасный день!")
 
         if today_events:
             lines.append("План на сегодня:")
@@ -72,14 +72,14 @@ async def daily_summary(bot: Bot) -> None:
                     text += f" • {ev.location}"
                 lines.append(text)
 
-        if tomorrow_events:
-            lines.append("План на завтра:")
-            for ev in tomorrow_events:
-                day_short = WEEKDAY_SHORT[ev.date_time.weekday()]
-                text = f"{day_short} {ev.date_time.strftime(DATE_FMT)} — {ev.title}"
-                if ev.location:
-                    text += f" • {ev.location}"
-                lines.append(text)
+        #if tomorrow_events:
+        #    lines.append("План на завтра:")
+        #    for ev in tomorrow_events:
+        #        day_short = WEEKDAY_SHORT[ev.date_time.weekday()]
+        #        text = f"{day_short} {ev.date_time.strftime(DATE_FMT)} — {ev.title}"
+        #        if ev.location:
+        #            text += f" • {ev.location}"
+        #        lines.append(text)
 
         if lines:
             messages_by_user[uid] = lines

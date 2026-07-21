@@ -112,7 +112,7 @@ async def cmd_all(message: types.Message):
         return
 
     events.sort(key=lambda e: e.date_time)
-    lines = ["Все события:"]
+    lines = ["Все события:\n"]
     for ev in events:
         day_short = WEEKDAY_SHORT[ev.date_time.weekday()]
         text = f"{day_short} {ev.date_time.strftime(DATE_FMT)} {ev.title} ({ev.id})"
@@ -176,10 +176,10 @@ async def _show_events(
 
     if not filtered:
         if day == "tomorrow":
-            await message.answer("🎉 Завтра ничего нет. Какой прекрасный день!")
+            await message.answer("🎉 На завтра планов нет. Какой прекрасный день!")
             return
         if day == "today":
-            await message.answer("🎉 Сегодня ничего нет. Какой прекрасный день!")
+            await message.answer("🎉 На сегодня планов нет. Какой прекрасный день!")
             return
         labels = {"today": "сегодня", "tomorrow": "завтра"}
         if period == "next_week":
