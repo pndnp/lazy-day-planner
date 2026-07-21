@@ -15,7 +15,7 @@ view_router = Router()
 @view_router.message(Command("today"))
 async def cmd_today(message: types.Message):
     """Show events for today."""
-    await _show_events(message)
+    await _show_events(message, day="today")
 
 
 @view_router.message(Command("tomorrow"))
@@ -122,7 +122,7 @@ async def cmd_all(message: types.Message):
 
 
 async def _show_events(
-    message: types.Message, day: str = "today", period: str = ""
+    message: types.Message, day: str = "", period: str = ""
 ) -> None:
     """Query and display events based on the selected day/period."""
     now = dt.datetime.now(ZoneInfo(TIMEZONE)).replace(tzinfo=None)
