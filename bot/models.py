@@ -1,4 +1,6 @@
 import datetime
+import json
+from typing import Any
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -18,8 +20,38 @@ class User(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime, server_default=func.now()
     )
+    settings_json: Mapped[str] = mapped_column(String, default="{}")
 
-    events: Mapped[list["Event"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    events: Mapped[list["Event"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+
+    @property
+    def settings(self) -> dict[str, Any]:
+        try:
+            parsed: dict[str, Any] = json.loads(self.settings_json or "{}")
+            return parsed
+        except json.JSONDecodeError:
+            return {}
+
+    @settings.setter
+    def settings(self, value: dict[str, Any]) -> None:
+        self.settings_json = json.dumps(value, ensure_ascii=False)
+
+    def get_setting(self, key: str, default: Any = None) -> Any:
+        return self.settings.get(key, default)
+
+    def set_setting(self, key: str, value: Any) -> None:
+        s = self.settings
+        s[key] = value
+        self.settings = s
+
+    def toggle_setting(self, key: str, default: bool = False) -> bool:
+        s = self.settings
+        new_val = not s.get(key, default)
+        s[key] = new_val
+        self.settings = s
+        return new_val
 
 
 class Event(Base):
@@ -34,7 +66,7 @@ class Event(Base):
     user: Mapped["User"] = relationship(back_populates="events")
 
 
-async def create_tables():
+async def create_tables() -> None:
     """Create database tables if they don't exist."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

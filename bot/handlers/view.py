@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 from aiogram import Router, types
 from aiogram.filters import Command
-from sqlalchemy import select, delete
+from sqlalchemy import delete, select
 
 from bot.config import DATE_FMT, TIMEZONE, WEEKDAY_SHORT
 from bot.db import async_session_factory
@@ -48,6 +48,7 @@ async def cmd_help(message: types.Message):
         "/week — Просмотр событий на текущую неделю\n"
         "/next_week — Просмотр событий на следующую неделю\n"
         "/all — Список всех событий\n"
+        "/skipempty — Не присылать пустую рассылку\n"
         "/del <id> — Удалить событие по его ID"
     )
     await message.answer(text)

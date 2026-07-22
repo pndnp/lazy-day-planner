@@ -25,22 +25,16 @@ async def daily_summary(bot: Bot) -> None:
         if deleted > 0:
             await session.commit()
 
-    user_ids = []
-
-    async with async_session_factory() as session:
-        result = await session.execute(select(User.id))
-        rows = result.all()
-        user_ids = [row[0] for row in rows]
-
-    if not user_ids:
-        return
-
     messages_by_user: dict[int, list[str]] = {}
 
-    for uid in user_ids:
+    async with async_session_factory() as session:
+        result = await session.execute(select(User))
+        users = result.scalars().all()
+
+    for user in users:
         async with async_session_factory() as session:
             result = await session.execute(
-                select(Event).where(Event.user_id == uid)
+                select(Event).where(Event.user_id == user.id)
             )
             events = result.scalars().all()
 
@@ -50,15 +44,9 @@ async def daily_summary(bot: Bot) -> None:
             [e for e in events if e.date_time.date() == now.date()],
             key=lambda e: e.date_time,
         )
-        #tomorrow_events = sorted(
-        #    [
-        #        e
-        #        for e in events
-        #        if e.date_time.date()
-        #        == now.date() + dt.timedelta(days=1)
-        #    ],
-        #    key=lambda e: e.date_time,
-        #)
+
+        if not today_events and user.get_setting("skip_empty", False):
+            continue
 
         if not today_events:
             lines.append("🎉 На сегодня планов нет. Какой прекрасный день!")
@@ -72,23 +60,13 @@ async def daily_summary(bot: Bot) -> None:
                     text += f" • {ev.location}"
                 lines.append(text)
 
-        #if tomorrow_events:
-        #    lines.append("План на завтра:")
-        #    for ev in tomorrow_events:
-        #        day_short = WEEKDAY_SHORT[ev.date_time.weekday()]
-        #        text = f"{day_short} {ev.date_time.strftime(DATE_FMT)} — {ev.title}"
-        #        if ev.location:
-        #            text += f" • {ev.location}"
-        #        lines.append(text)
-
         if lines:
-            messages_by_user[uid] = lines
-
+            messages_by_user[user.id] = lines
 
     telegram_ids: dict[int | None, int] = {}
     async with async_session_factory() as session:
         result = await session.execute(
-            select(User).where(User.id.in_(user_ids))
+            select(User).where(User.id.in_(messages_by_user.keys()))
         )
         users = result.scalars().all()
         for user in users:

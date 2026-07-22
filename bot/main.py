@@ -6,6 +6,7 @@ from aiogram import Bot
 from bot import dp
 from bot.config import BOT_TOKEN, SUMMARY_HOUR, SUMMARY_MINUTE
 from bot.handlers import configure_router
+from bot.migrations import apply_migrations
 from bot.models import create_tables
 from bot.scheduler import daily_summary
 
@@ -28,6 +29,7 @@ async def main() -> None:
     dp.bot = bot
 
     await create_tables()
+    await apply_migrations()
     configure_router(dp)
 
     from functools import partial
