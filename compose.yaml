@@ -3,8 +3,11 @@ services:
     build: .
     env_file:
       - .env
+    environment:
+      TZ: Europe/Moscow
     volumes:
       - ./events.db:/app/data/events.db
+      - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import os; exit(0 if os.path.isfile('/app/data/events.db') else 1)"]

@@ -90,6 +90,17 @@ def calendar_keyboard(
     today = dt.datetime.now().date()
     cal = calendar.monthcalendar(year, month)
     for week in cal:
+        # Skip weeks that contain no selectable days
+        has_available = False
+        for day in week:
+            if day != 0:
+                cell_date = dt.date(year, month, day)
+                if cell_date >= today:
+                    has_available = True
+                    break
+        if not has_available:
+            continue
+
         row: list[InlineKeyboardButton] = []
         for day in week:
             if day == 0:
