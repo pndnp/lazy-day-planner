@@ -55,9 +55,10 @@ def calendar_keyboard(
         next_month = dt.date(year, month + 1, 1)
 
     # If viewing the current month, disable the "<" arrow
-    is_current_month = (year == today.year and month == today.month)
+    is_current_month = year == today.year and month == today.month
     prev_cd = (
-        "calignore" if is_current_month
+        "calignore"
+        if is_current_month
         else f"calprev_{prev_month.year:04d}-{prev_month.month:02d}"
     )
 
@@ -80,10 +81,7 @@ def calendar_keyboard(
     # Weekday headers
     week_days = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
     keyboard.append(
-        [
-            InlineKeyboardButton(text=day, callback_data="calignore")
-            for day in week_days
-        ]
+        [InlineKeyboardButton(text=day, callback_data="calignore") for day in week_days]
     )
 
     # Days grid
@@ -104,9 +102,7 @@ def calendar_keyboard(
         row: list[InlineKeyboardButton] = []
         for day in week:
             if day == 0:
-                row.append(
-                    InlineKeyboardButton(text=" ", callback_data="calignore")
-                )
+                row.append(InlineKeyboardButton(text=" ", callback_data="calignore"))
             else:
                 cell_date = dt.date(year, month, day)
                 if cell_date < today:
@@ -133,9 +129,7 @@ def calendar_keyboard(
         ]
     )
     keyboard.append(
-        [
-            InlineKeyboardButton(text="Отменить", callback_data="cancel_new_event")
-        ]
+        [InlineKeyboardButton(text="Отменить", callback_data="cancel_new_event")]
     )
 
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
@@ -163,9 +157,7 @@ def time_keyboard() -> InlineKeyboardMarkup:
         keyboard.append(row)
 
     keyboard.append(
-        [
-            InlineKeyboardButton(text="Отменить", callback_data="cancel_new_event")
-        ]
+        [InlineKeyboardButton(text="Отменить", callback_data="cancel_new_event")]
     )
 
     return InlineKeyboardMarkup(inline_keyboard=keyboard)

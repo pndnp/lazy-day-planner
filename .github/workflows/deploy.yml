@@ -10,12 +10,36 @@ on:
       - ".github/workflows/ci.yml"
 
 jobs:
-  deploy:
+  check:
     runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: uv sync --all-extras
+
+      - name: Run ruff (lint + format check)
+        run: uv run ruff check . && uv run ruff format --check .
+
+      - name: Run tests
+        run: uv run pytest bot_tests/ -v
+
+  deploy:
+    needs: check
+    runs-on: ubuntu-22.04
+
+    steps:
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -30,6 +54,9 @@ jobs:
 
             # Pull latest changes
             git config --global --add safe.directory "$PROJECT_DIR"
+            git fetch origin main
+            git reset --hard origin/main
+            git clean -fdx
             git pull origin main
 
             # Pull and rebuild Docker images
@@ -38,6 +65,3 @@ jobs:
 
             # Cleanup unused images
             docker image prune -f
-
-            #test
-

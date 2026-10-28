@@ -20,7 +20,9 @@ async def cmd_start(message: Message) -> None:
     telegram_id = message.from_user.id
 
     async with async_session_factory() as session:
-        result = await session.execute(select(User).where(User.telegram_id == telegram_id))
+        result = await session.execute(
+            select(User).where(User.telegram_id == telegram_id)
+        )
         user = result.scalar_one_or_none()
         if user is None:
             user = User(telegram_id=telegram_id)
@@ -56,12 +58,18 @@ async def cmd_delete_account(message: Message) -> None:
         # "• Токены Google Календаря\n\n"
         "Удаление необратимо!"
     )
-    kb = InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(text="Удалить аккаунт", callback_data="delete_account_confirm"),
-            InlineKeyboardButton(text="Отмена", callback_data="delete_account_cancel"),
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="Удалить аккаунт", callback_data="delete_account_confirm"
+                ),
+                InlineKeyboardButton(
+                    text="Отмена", callback_data="delete_account_cancel"
+                ),
+            ]
         ]
-    ])
+    )
     await message.answer(text, reply_markup=kb)
 
 
@@ -71,14 +79,18 @@ async def callback_delete_account_confirm(call) -> None:
     user_id = call.from_user.id
     try:
         async with async_session_factory() as session:
-            user_result = await session.execute(select(User).where(User.telegram_id == user_id))
+            user_result = await session.execute(
+                select(User).where(User.telegram_id == user_id)
+            )
             user = user_result.scalar_one_or_none()
 
             if user is None:
                 await call.message.answer("Пользователь не найден.")
                 return
 
-            event_result = await session.execute(select(Event).where(Event.user_id == user.id))
+            event_result = await session.execute(
+                select(Event).where(Event.user_id == user.id)
+            )
             event_count = len(event_result.scalars().all())
 
             logger.info("Deleting user %d with %d events", user.id, event_count)

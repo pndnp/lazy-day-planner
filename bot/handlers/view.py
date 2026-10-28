@@ -98,7 +98,9 @@ async def cmd_del(message: types.Message):
 
         telegram_id = message.from_user.id
         async with async_session_factory() as session:
-            result = await session.execute(select(User).where(User.telegram_id == telegram_id))
+            result = await session.execute(
+                select(User).where(User.telegram_id == telegram_id)
+            )
             user = result.scalar_one_or_none()
 
         if user is None:
@@ -116,7 +118,9 @@ async def cmd_del(message: types.Message):
             return
 
         async with async_session_factory() as session:
-            await session.execute(delete(Event).where(Event.id == event_id, Event.user_id == user.id))
+            await session.execute(
+                delete(Event).where(Event.id == event_id, Event.user_id == user.id)
+            )
             await session.commit()
 
         await message.reply(f"Событие '{event.title}' удалено.")
@@ -133,7 +137,9 @@ async def cmd_all(message: types.Message):
         telegram_id = message.from_user.id
 
         async with async_session_factory() as session:
-            result = await session.execute(select(User).where(User.telegram_id == telegram_id))
+            result = await session.execute(
+                select(User).where(User.telegram_id == telegram_id)
+            )
             user = result.scalar_one_or_none()
 
         if user is None:
@@ -141,7 +147,9 @@ async def cmd_all(message: types.Message):
             return
 
         async with async_session_factory() as session:
-            result = await session.execute(select(Event).where(Event.user_id == user.id))
+            result = await session.execute(
+                select(Event).where(Event.user_id == user.id)
+            )
             events = result.scalars().all()
 
         if not events:
@@ -161,16 +169,21 @@ async def cmd_all(message: types.Message):
         logger.exception("cmd_all failed")
 
 
-async def _show_events(
-    message: types.Message, day: str = "", period: str = ""
-) -> None:
+async def _show_events(message: types.Message, day: str = "", period: str = "") -> None:
     """Query and display events based on the selected day/period."""
-    logger.info("_show_events called: day=%s, period=%s, user=%s", day, period, message.from_user.id)
+    logger.info(
+        "_show_events called: day=%s, period=%s, user=%s",
+        day,
+        period,
+        message.from_user.id,
+    )
     now = dt.datetime.now(ZoneInfo(TIMEZONE)).replace(tzinfo=None)
     telegram_id = message.from_user.id
 
     async with async_session_factory() as session:
-        result = await session.execute(select(User).where(User.telegram_id == telegram_id))
+        result = await session.execute(
+            select(User).where(User.telegram_id == telegram_id)
+        )
         user = result.scalar_one_or_none()
 
     if user is None:
@@ -197,7 +210,7 @@ async def _show_events(
 
     filtered = []
     for ev in events:
-        d = ev.date_time.date() if hasattr(ev.date_time, 'date') else ev.date_time
+        d = ev.date_time.date() if hasattr(ev.date_time, "date") else ev.date_time
 
         if period == "week":
             monday = now.date() - dt.timedelta(days=now.weekday())
@@ -205,7 +218,9 @@ async def _show_events(
             if monday <= d <= sunday:
                 filtered.append(ev)
         elif period == "next_week":
-            monday = now.date() - dt.timedelta(days=now.weekday()) + dt.timedelta(weeks=1)
+            monday = (
+                now.date() - dt.timedelta(days=now.weekday()) + dt.timedelta(weeks=1)
+            )
             sunday = monday + dt.timedelta(days=6)
             if monday <= d <= sunday:
                 filtered.append(ev)
@@ -242,7 +257,10 @@ async def _show_events(
         header = "План на эту неделю:"
     else:
         header = f"План на {'сегодня' if day == 'today' else 'завтра'}:"
-    lines = [header, "", ]
+    lines = [
+        header,
+        "",
+    ]
     for ev in filtered:
         day_short = WEEKDAY_SHORT[ev.date_time.weekday()]
         text = f"{day_short} {ev.date_time.strftime(DATE_FMT)} — {ev.title}"

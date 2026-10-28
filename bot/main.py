@@ -14,20 +14,22 @@ from bot.scheduler import daily_summary
 
 async def on_startup(bot: Bot) -> None:
     """Called when polling starts."""
-    await bot.set_my_commands([
-        BotCommand(command="start", description="Начать работу"),
-        BotCommand(command="add", description="Добавить событие"),
-        BotCommand(command="today", description="Планы на сегодня"),
-        BotCommand(command="tomorrow", description="Планы на завтра"),
-        BotCommand(command="week", description="Планы на неделю"),
-        BotCommand(command="next_week", description="Планы на след. неделю"),
-        BotCommand(command="all", description="Все события"),
-        BotCommand(command="del", description="Удалить событие"),
-        BotCommand(command="skipempty", description="Пропустить рассылку"),
-        BotCommand(command="deleteaccount", description="Удалить аккаунт"),
-        BotCommand(command="help", description="Справка"),
-        BotCommand(command="settings", description="Настройки"),
-    ])
+    await bot.set_my_commands(
+        [
+            BotCommand(command="start", description="Начать работу"),
+            BotCommand(command="add", description="Добавить событие"),
+            BotCommand(command="today", description="Планы на сегодня"),
+            BotCommand(command="tomorrow", description="Планы на завтра"),
+            BotCommand(command="week", description="Планы на неделю"),
+            BotCommand(command="next_week", description="Планы на след. неделю"),
+            BotCommand(command="all", description="Все события"),
+            BotCommand(command="del", description="Удалить событие"),
+            BotCommand(command="skipempty", description="Пропустить рассылку"),
+            BotCommand(command="deleteaccount", description="Удалить аккаунт"),
+            BotCommand(command="help", description="Справка"),
+            BotCommand(command="settings", description="Настройки"),
+        ]
+    )
 
 
 async def on_shutdown(bot: Bot) -> None:

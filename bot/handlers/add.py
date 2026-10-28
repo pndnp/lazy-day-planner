@@ -33,9 +33,11 @@ async def _get_or_create_user(user_id: int) -> User:
 async def cmd_add(message: types.Message, state: FSMContext) -> None:
     """Start the event creation wizard."""
     await state.set_state(NewEventState.waiting_for_title)
-    kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Отменить", callback_data="cancel_new_event")]
-    ])
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="Отменить", callback_data="cancel_new_event")]
+        ]
+    )
     await message.answer("Введите название события:", reply_markup=kb)
 
 
@@ -52,6 +54,7 @@ async def collect_title(message: types.Message, state: FSMContext) -> None:
 
 
 # ── Calendar callbacks ──
+
 
 @add_router.callback_query(
     F.data.startswith("calprev_"), NewEventState.waiting_for_date
@@ -102,9 +105,15 @@ async def cal_select_date(
     await callback_query.message.edit_text(
         text="Введите время <code>hh:mm</code>",
         parse_mode="HTML",
-        reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="Отменить", callback_data="cancel_new_event")]
-        ]),
+        reply_markup=InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="Отменить", callback_data="cancel_new_event"
+                    )
+                ]
+            ]
+        ),
     )
 
 
@@ -127,13 +136,20 @@ async def cal_quick_date(
     await callback_query.message.edit_text(
         text="Введите время <code>hh:mm</code>",
         parse_mode="HTML",
-        reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="Отменить", callback_data="cancel_new_event")]
-        ]),
+        reply_markup=InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(
+                        text="Отменить", callback_data="cancel_new_event"
+                    )
+                ]
+            ]
+        ),
     )
 
 
 # ── Time callback ──
+
 
 @add_router.message(NewEventState.waiting_for_time)
 async def collect_time(message: types.Message, state: FSMContext) -> None:
@@ -160,14 +176,19 @@ async def collect_time(message: types.Message, state: FSMContext) -> None:
 
     await state.update_data(date_time=parsed.strftime(DATE_FMT))
     await state.set_state(NewEventState.waiting_for_location)
-    kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="Пропустить", callback_data="skip_loc"),
-         InlineKeyboardButton(text="Отменить", callback_data="cancel_new_event")]
-    ])
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="Пропустить", callback_data="skip_loc"),
+                InlineKeyboardButton(text="Отменить", callback_data="cancel_new_event"),
+            ]
+        ]
+    )
     await message.answer("Укажите место:", reply_markup=kb)
 
 
 # ── Location (same flow as before) ──
+
 
 @add_router.callback_query(F.data == "skip_loc", NewEventState.waiting_for_location)
 async def skip_location(callback_query: types.CallbackQuery, state: FSMContext) -> None:
@@ -186,7 +207,8 @@ async def collect_location(message: types.Message, state: FSMContext) -> None:
 
 @add_router.callback_query(F.data == "cancel_new_event")
 async def cancel_new_event(
-    callback_query: types.CallbackQuery, state: FSMContext,
+    callback_query: types.CallbackQuery,
+    state: FSMContext,
 ) -> None:
     """Cancel event creation and clear state."""
     await callback_query.answer()
