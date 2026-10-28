@@ -3,6 +3,11 @@ name: Deploy Docker
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "bot_tests/**"
+      - "*.md"
+      - ".pre-commit-config.yaml"
+      - ".github/workflows/ci.yml"
 
 jobs:
   deploy:
