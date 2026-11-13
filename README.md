@@ -34,30 +34,82 @@ lazy-day/
    │   ├─ add.py        # диалог /add
    └─ view.py       # /today, /tomorrow, /week, /next_week
    ├─ scheduler.py     # APScheduler‑задача daily_summary
-   └─ main.py          # создание Bot, Dispatcher, регистрация роутеров, запуск polling
+    ├─ main.py          # создание Bot, Dispatcher, регистрация роутеров, запуск вебхука
 
 ```
 
-## Как запустить
+## Как запустить локально (polling)
 
 ```bash
-# создать и активировать виртуальное окружение (уже есть)
+# активировать виртуальное окружение (если ещё не активировано)
 source venv/bin/activate
+
+# скопировать .env.example и заполнить BOT_TOKEN
+cp .env.example .env
 
 # установить зависимости (если ещё не установлены)
 pip install -r requirements.txt
-
 
 # запустить бота
 python -m bot.main
 ```
 
-После запуска бот будет принимать команды:
+Бот будет принимать команды:
 - `/start` – приветствие и регистрация пользователя.
 - `/add` – пошаговое добавление события (название → дата/время → место).
 - `/today`, `/tomorrow`, `/week`, `/next_week` – просмотр планов.
 - `/del <id>` – удаление события.
 - `/help` – справка.
+
+## Развёртывание с вебхуком
+
+Для продакшена используется режим Telegram Webhook + Nginx для HTTPS.
+
+### Требования
+
+- Домен с направленным на сервер IP-адресом.
+- Docker и Docker Compose.
+- Сертификаты Let's Encrypt (автоматически получаются через certbot).
+
+### Настройка
+
+1. Скопируйте `.env.example` → `.env` и заполните:
+
+```bash
+cp .env.example .env
+# Edit .env with your domain, certificate paths etc.
+```
+
+2. Замените `{{DOMAIN}}` в `nginx.conf` на ваш домен:
+
+```bash
+sed -i "s/{{DOMAIN}}/your-domain.com/g" nginx.conf
+```
+
+3. Поднимите сервисы:
+
+```bash
+docker compose up -d --build
+```
+
+### SSL-сертификаты
+
+Let's Encrypt можно настроить вручную:
+
+```bash
+docker run -it --rm \
+  -v $(pwd)/certbot/conf:/etc/letsencrypt \
+  -v $(pwd)/certbot/www:/var/www/certbot \
+  nginx:alpine \
+  /bin/sh -c "apk add --no-cache certbot && certbot certonly --webroot --webroot-path=/var/www/certbot --email your-email@example.com -d your-domain.com"
+```
+
+Обновите пути к сертификатам в `.env`:
+
+```
+SSL_CERT_PATH=/etc/letsencrypt/live/your-domain.com/fullchain.pem
+SSL_KEY_PATH=/etc/letsencrypt/live/your-domain.com/privkey.pem
+```
 
 ## Расширение до многопользовательского режима
 
