@@ -5,20 +5,12 @@ services:
       - .env
     environment:
       TZ: Europe/Moscow
-      TELEGRAM_WEBHOOK_URL: ${TELEGRAM_WEBHOOK_URL:-https://localhost/webhook}
     volumes:
       - data:/app/data
       - /etc/localtime:/etc/localtime:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
     restart: unless-stopped
-    expose:
-      - "80"
-    ports:
-      - "8081:80"
-    networks:
-      - app-network
     healthcheck:
-      test: ["CMD-SHELL", "python -c 'import socket; s = socket.socket(); s.connect((\"localhost\", 80)); s.close()'"]
+      test: ["CMD", "python", "-c", "import os; exit(0 if os.path.isfile('/app/data/events.db') else 1)"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -28,13 +20,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-
-  # nginx is handled by the system nginx on the host
-  # Remove this container when a host-level nginx is already serving port 80/443
-
-networks:
-  app-network:
-    driver: bridge
 
 volumes:
   data:

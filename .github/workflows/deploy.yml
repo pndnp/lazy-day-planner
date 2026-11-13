@@ -61,8 +61,7 @@ jobs:
 
             # Pull and rebuild Docker images
             docker compose pull
-            #docker compose up -d --build
-            docker compose --profile deploy up -d --build
+            docker compose up -d --build
 
             # Cleanup unused images
             docker image prune -f
