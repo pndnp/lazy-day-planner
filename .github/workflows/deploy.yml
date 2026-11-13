@@ -60,7 +60,7 @@ jobs:
             git pull origin main
 
             # Pull and rebuild Docker images
-            docker compose pull || true
+            docker compose pull
             docker compose up -d --build
 
             # Cleanup unused images

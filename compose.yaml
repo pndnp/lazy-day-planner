@@ -6,7 +6,7 @@ services:
     environment:
       TZ: Europe/Moscow
     volumes:
-      - ./events.db:/app/data/events.db
+      - data:/app/data
       - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
     healthcheck:
@@ -20,3 +20,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+volumes:
+  data:
